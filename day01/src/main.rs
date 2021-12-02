@@ -17,7 +17,7 @@ fn main() {
 
     let input: Vec<i64> = fs::read_to_string("input.txt")
         .unwrap() // Returns the string if reading went well, panics otherwise
-        .split_whitespace() // Does what is says
+        .lines() // Does splits on newline
         .map(|line| line.parse::<i64>().unwrap()) // Takes each element and parses it, again unwrap to return value or fail
         .collect(); // Before this it is just lazy, here it actually runs the previous steps
 
