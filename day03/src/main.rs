@@ -18,27 +18,27 @@ fn run_a(input: &Vec<i64>) {
     println!("{}", alpha * gamma);
 }
 
-fn getbit(num: &i64, idx: i64) -> i64 {
-    (num & (1 << (11 - idx))) >> (11 - idx)
-}
-
 fn run_b(input: &Vec<i64>) {
-    let mut a = input.to_vec();
-    let mut b = input.to_vec();
-    for i in 0..12 {
-        let mut aval = a.map();
-        let mut bval = 0;
-        for num in a {
-            aval += getbit(&num, i);
-        }
-        for num in b {
-            bval += getbit(&num, i);
-        }
-
-        a = a.into_iter().filter(|it| getbit(it, i) == (2 * aval > input.len() as i64) as i64).collect();
-        b = b.into_iter().filter(|it| getbit(it, i) == (2 * bval > input.len() as i64) as i64).collect();
+    let mut a = input.clone();
+    for i in (0..12).rev() {
+        let countones: i64 = a.iter().map(|num| (num & (1 << i)) >> i).sum();
+        let saveval = (2 * countones >= a.len() as i64) as i64;
+        a = a.into_iter().filter(|num| saveval == (num & (1 << i)) >> i).collect();
     }
-    println!("{:?} {:?}", a, b);
+    let oxy = a.first().expect("No values left");
+
+    let mut b = input.clone();
+    for i in (0..12).rev() {
+        let countones: i64 = b.iter().map(|num| (num & (1 << i)) >> i).sum();
+        let saveval = (2 * countones < b.len() as i64) as i64;
+        b = b.into_iter().filter(|num| saveval == (num & (1 << i)) >> i).collect();
+        if b.len() == 1 {
+            break;
+        }
+    }
+    let co2 = b.first().expect("No values left");
+
+    println!("{}", oxy * co2);
 }
 
 fn main() {
