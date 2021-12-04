@@ -4,15 +4,15 @@ use std::fs;
 fn run_a(input: &Vec<i64>) {
     let mut alpha = 0;
     let mut gamma = 0;
-    for i in 0..12 {
+    for i in (0..12).rev() {
         let mut val = 0;
         for num in input {
-            val += (num & (1 << (11 - i))) >> (11 - i);
+            val += (num & (1 << i)) >> i;
         }
         if 2 * val > input.len() as i64 {
-            alpha += 1 << (11 - i);
+            alpha += 1 << i;
         } else {
-            gamma += 1 << (11 - i);
+            gamma += 1 << i;
         }
     }
     println!("{}", alpha * gamma);
