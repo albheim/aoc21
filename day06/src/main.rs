@@ -3,7 +3,7 @@ use std::env;
 
 fn run(input: &mut Vec<usize>, steps: usize) {
     let mut ptr = 0;
-    for i in 0..steps {
+    for _ in 0..steps {
         input[(ptr + 7) % 9] += input[ptr]; 
         ptr = (ptr + 1) % 9;
     }
