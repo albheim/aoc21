@@ -50,8 +50,7 @@ fn process_line(line: &str) -> usize {
     // String len to string
     let mut nums: Vec<Vec<&str>> = vec![Vec::new(); 8];
     for num in a.split_whitespace() {
-        let idx: usize = num.len();
-        nums[idx].push(num);
+        nums[num.len()].push(num);
     }
     
     // Check one (two segments, only in list)
