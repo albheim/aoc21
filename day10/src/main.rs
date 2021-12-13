@@ -9,10 +9,7 @@ fn run_a(input: &String) {
         stack.clear();
         for c in line.chars() {
             match c {
-                '(' => stack.push(c),
-                '[' => stack.push(c),
-                '{' => stack.push(c),
-                '<' => stack.push(c),
+                '(' | '[' | '{' | '<' => stack.push(c),
                 ')' => if stack.pop().unwrap() != '(' {
                     score += 3;
                     break
@@ -74,7 +71,7 @@ fn run_b(input: &String) {
                     '[' => score += 2,
                     '{' => score += 3,
                     '<' => score += 4,
-                    _ => panic!("Invalid char")
+                    _ => panic!("Invalid char found")
                 }
             }
             scores.push(score);
