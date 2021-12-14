@@ -2,27 +2,34 @@ use std::fs;
 use std::env;
 use std::collections::HashMap;
 
-fn dfs(a: char, b: char, rules: &HashMap<(char, char), char>, counts: &mut HashMap<char, usize>, depth: usize) {
-    if depth == 0 {
-        return 
-    }
-    let c = rules[&(a, b)];
-    *counts.entry(c).or_insert(0) += 1;
-    dfs(a, c, rules, counts, depth - 1);
-    dfs(c, b, rules, counts, depth - 1);
-}
-
 fn run(template: &str, rules: &HashMap<(char, char), char>, depth: usize) {
-    let mut counts = HashMap::new();
-    for c in template.chars() {
-        *counts.entry(c).or_insert(0) += 1;
+    let mut counts: HashMap<(char, char), usize> = HashMap::new();
+    for key in template.as_bytes().windows(2) {
+        *counts.entry((key[0] as char, key[1] as char)).or_insert(0) += 1;
     }
-    for i in 1..template.len() {
-        dfs(template.chars().nth(i-1).unwrap(), template.chars().nth(i).unwrap(), rules, &mut counts, depth);
+    let mut newcounts = HashMap::new();
+
+    for _ in 0..depth {
+        for (key, value) in counts.iter() {
+            let c = rules[key];
+            let key1 = (key.0, c);
+            let key2 = (c, key.1);
+            *newcounts.entry(key1).or_insert(0) += *value;
+            *newcounts.entry(key2).or_insert(0) += *value;
+        }
+        counts.clear();
+        for (key, value) in newcounts.iter() {
+            counts.insert(*key, *value);
+        }
+        newcounts.clear();
+    }
+    newcounts.insert((' ', template.chars().nth(0).unwrap()), 1);
+    for (key, value) in counts.into_iter() {
+        *newcounts.entry((' ', key.1)).or_insert(0) += value;
     }
     let mut max = 0;
     let mut min = std::usize::MAX;
-    for n in counts.into_values() {
+    for n in newcounts.into_values() {
         if n > max {
             max = n;
         } 
@@ -48,7 +55,7 @@ fn main() {
     
     match version.as_str() {
         "a" => run(template, &rules, 10),
-        "b" => run(template, &rules, 25),
+        "b" => run(template, &rules, 40),
         _ => panic!("Invalid input")
     }
 }
