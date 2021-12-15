@@ -9,12 +9,15 @@ done
 echo "Running individual"
 for d in ./*/ ; do
     cd $d
-    start_time1="$(date -u +%s.%N)"
+    start_time="$(date -u +%s.%N)"
     ./target/release/$(basename $d) a >> /dev/null
+    mid_time="$(date -u +%s.%N)"
     ./target/release/$(basename $d) b >> /dev/null
-    end_time1="$(date -u +%s.%N)"
-    elapsed="$(bc <<<"$end_time1-$start_time1")"
-    echo "$(basename $d): $elapsed seconds"
+    end_time="$(date -u +%s.%N)"
+    elapseda="$(bc <<<"$mid_time-$start_time")"
+    elapsedb="$(bc <<<"$end_time-$mid_time")"
+    echo "$(basename $d)a: $elapseda seconds"
+    echo "$(basename $d)b: $elapsedb seconds"
     cd ..
 done
 
