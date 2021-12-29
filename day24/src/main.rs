@@ -1,45 +1,48 @@
 use std::env;
 use std::fs;
+use std::cmp;
 
-fn step(z: isize, input: isize, params: [isize; 3]) -> isize {
-    let mut newz = z / params[0];
-    if z % 26 + params[1] != input {
-        newz = 26 * newz + input + params[2];
-    }
-    return newz;
-}
+/*
+steps = [(a0, b0, c0), ..., (a13, b13, c13)]
+num = w0 w1 w2 ... w13
 
-fn find_number(z: isize, params: &Vec<[isize; 3]>, idx: usize) -> isize {
-    if idx == params.len() {
-        if z == 0 {
-            return 1;
+z0 = 0
+z(i+1) = if zi % 26 + bi == wi { floor(zi / ai) } else { floor(zi / ai) * 26 + wi + ci }
+
+We have a is either 1 or 26, and there are seven each, always need to go down when possible.
+Each one where a is 1 will multiply by 26 and add something less than 26.
+Each one where a is 26 will divide with floor, and thus reverse one of the previous steps.
+There is a solution iff each step with 26 can undo a step with 1, and this solution assume the input is such.
+
+Since 
+wi + ci < 26 
+for all values given, we know that all steps will be reversable since the floor division when params[0] is 26
+will remove last wi + ci, so if all inputs that can fulfill
+input = zi % 26 + bi
+does so it will finish correctly.
+This means that 
+zx = (...) * 26 + wi + ci
+and the corresponding input is then
+wx = wi + ci
+
+Use a stack and push on ai = 1, pop otherwise. Match the digits and fix it up.
+*/
+
+fn run(steps: &Vec<[i64; 3]>, compfun: &dyn Fn(i64) ->  i64) {
+    let mut stack = Vec::new();
+    let mut num = [0; 14];
+    for i in 0..steps.len() {
+        if steps[i][0] == 1 {
+            stack.push((i, steps[i][2]))
         } else {
-            return 0;
+            let (idx, val) = stack.pop().expect("Input did not look as expected");
+            let d = val + steps[i][1];
+            num[i] = compfun(-d);
+            num[idx] = compfun(d);
         }
     }
-    if params[idx][0] != 1 {
-        let input = z % 26 + params[idx][1];
-        if input > 0 && input < 9 {
-            let a = find_number(step(z, input, params[idx]), params, idx + 1);
-            if a != 0 {
-                println!("a {} {} {} {}", idx, input, a, z);
-                return 10_isize.pow((14 - idx) as u32) * input + a;
-            } 
-        }
-    } 
-    for i in (1..10).rev() {
-        let a = find_number(step(z, i, params[idx]), params, idx + 1);
-        if a != 0 {
-            println!("b {} {} {} {}", idx, i, a, z);
-            return 10_isize.pow((14 - idx) as u32) * i + a;
-        } 
-    }
-    return 0;
-}
-
-fn run(steps: &Vec<[isize; 3]>) {
-    let a = find_number(0, &steps, 0);
-    println!("{}", a);
+    let num = num.iter().fold(0, |tot, digit| tot * 10 + digit);
+    println!("{}", num);
 }
 
 fn main() {
@@ -59,8 +62,8 @@ fn main() {
     }
 
     match version.as_str() {
-        "a" => run(&steps),
-        "b" => run(&steps),
+        "a" => run(&steps, &|x| cmp::min(9, 9-x)),
+        "b" => run(&steps, &|x| cmp::max(1, 1-x)),
         _ => panic!("Invalid input")
     }
 }
