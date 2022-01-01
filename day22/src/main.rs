@@ -9,7 +9,7 @@ fn overlap(v1: [i128; 6], v2: [i128; 6]) -> bool {
     let ymax = cmp::min(v1[3], v2[3]);
     let zmin = cmp::max(v1[4], v2[4]);
     let zmax = cmp::min(v1[5], v2[5]);
-    return xmax > xmin && ymax > ymin && zmax > zmin;
+    return xmax >= xmin && ymax >= ymin && zmax >= zmin;
 }
 
 // Maybe use, but messier code
@@ -24,51 +24,55 @@ fn run(commands: Vec<(bool, [i128; 6])>) {
     for (flag, volume) in commands {
         println!("volume {:?} on {}", volume, flag);
         let mut i = 0;
-        while i < volumes.len() {
-            //println!("i = {}, vollen = {}", i, volumes.len());
+        let vollen = volumes.len(); // Only loop to curren tlen
+        while i < vollen {
+            println!(" checking = {:?}", volumes[i]);
             if overlap(volume, volumes[i]) {
-                println!("  overlap with {:?}", volumes[i]);
-                let vnew = volume;
-                let vold = volumes[i];
+                println!("  overlap");
+                let mut overlap = volumes[i]; // overlap is copy
                 // Modify old piece to not overlap, add new piece at end of volumes
                 // Cut in x
-                if vnew[0] > vold[0] && vnew[0] < vold[1] {
-                    println!("  cut1 at x={}", vnew[0]);
-                    // Cut vold at vnew[0]
-                    volumes[i] = [vold[0], vnew[0] - 1, vold[2], vold[3], vold[4], vold[5]];
-                    volumes.push([vnew[0], vold[1], vold[2], vold[3], vold[4], vold[5]]);
-                } else if vnew[1] > vold[0] && vnew[1] < vold[1] {
-                    println!("  cut2 at x={}", vnew[1]);
-                    // Cut vold at vnew[1]
-                    volumes[i] = [vnew[1] + 1, vold[1], vold[2], vold[3], vold[4], vold[5]];
-                    volumes.push([vold[0], vnew[1], vold[2], vold[3], vold[4], vold[5]]);
-                } else if vnew[2] > vold[2] && vnew[2] < vold[3] {
-                    println!("  cut1 at y={}", vnew[2]);
-                    // Cut vold at vnew[2]
-                    volumes[i] = [vold[0], vold[1], vold[2], vnew[2] - 1, vold[4], vold[5]];
-                    volumes.push([vold[0], vold[1], vnew[2], vold[3], vold[4], vold[5]]);
-                } else if vnew[3] > vold[2] && vnew[3] < vold[3] {
-                    println!("  cut2 at y={}", vnew[3]);
-                    // Cut vold at vnew[3]
-                    volumes[i] = [vold[0], vold[1], vnew[3] + 1, vold[3], vold[4], vold[5]];
-                    volumes.push([vold[0], vold[1], vold[2], vnew[3], vold[4], vold[5]]);
-                } else if vnew[4] > vold[4] && vnew[4] < vold[5] {
-                    println!("  cut1 at z={}", vnew[4]);
-                    // Cut vold at vnew[4]
-                    volumes[i] = [vold[0], vold[1], vold[2], vold[3], vold[4], vnew[4] - 1];
-                    volumes.push([vold[0], vold[1], vold[2], vold[3], vnew[4], vold[5]]);
-                } else if vnew[5] > vold[4] && vnew[5] < vold[5] {
-                    println!("  cut2 at z={}", vnew[5]);
-                    // Cut vold at vnew[3]
-                    volumes[i] = [vold[0], vold[1], vold[2], vold[3], vnew[5] + 1, vold[5]];
-                    volumes.push([vold[0], vold[1], vold[2], vnew[3], vold[4], vnew[5]]);
-                } else {
-                    // If overlap, but no cut, volume[i] is contained in volume and can thus be removed
-                    volumes.remove(i); 
-                    println!("  no more cut");
+                loop {
+                    if volume[0] > overlap[0] && volume[0] <= overlap[1] {
+                        println!("  cut1 at x={}", volume[0]);
+                        // Cut overlap at volume[0]
+                        volumes.push([overlap[0], volume[0] - 1, overlap[2], overlap[3], overlap[4], overlap[5]]);
+                        overlap[0] = volume[0];
+                    } else if volume[1] >= overlap[0] && volume[1] < overlap[1] {
+                        println!("  cut2 at x={}", volume[1]);
+                        // Cut overlap at volume[1]
+                        volumes.push([volume[1] + 1, overlap[1], overlap[2], overlap[3], overlap[4], overlap[5]]);
+                        overlap[1] = volume[1];
+                    } else if volume[2] > overlap[2] && volume[2] <= overlap[3] {
+                        println!("  cut1 at y={}", volume[2]);
+                        // Cut overlap at volume[2]
+                        volumes.push([overlap[0], overlap[1], overlap[2], volume[2] - 1, overlap[4], overlap[5]]);
+                        overlap[2] = volume[2];
+                    } else if volume[3] >= overlap[2] && volume[3] < overlap[3] {
+                        println!("  cut2 at y={}", volume[3]);
+                        // Cut overlap at volume[3]
+                        volumes.push([overlap[0], overlap[1], volume[3] + 1, overlap[3], overlap[4], overlap[5]]);
+                        overlap[3] = volume[3];
+                    } else if volume[4] > overlap[4] && volume[4] <= overlap[5] {
+                        println!("  cut1 at z={}", volume[4]);
+                        // Cut overlap at volume[4]
+                        volumes.push([overlap[0], overlap[1], overlap[2], overlap[3], overlap[4], volume[4] - 1]);
+                        overlap[4] = volume[4];
+                    } else if volume[5] >= overlap[4] && volume[5] < overlap[5] {
+                        println!("  cut2 at z={}", volume[5]);
+                        // Cut overlap at volume[3]
+                        volumes.push([overlap[0], overlap[1], overlap[2], overlap[3], volume[5] + 1, overlap[5]]);
+                        overlap[5] = volume[5];
+                    } else {
+                        // If overlap, but no cut, volume[i] is contained in volume and can thus be removed
+                        volumes.remove(i); 
+                        println!("  no more cut, overlap was {:?}", overlap);
+                        break;
+                    }
                 }
+            } else {
+                i += 1; 
             }
-            i += 1;
         }
         // If turned on add whole new volume, all overlaps has been removed from already existing
         if flag {
