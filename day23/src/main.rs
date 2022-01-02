@@ -68,34 +68,15 @@ fn possible_moves(map: &Vec<Vec<char>>) -> Vec<[usize; 4]> {
             correct &= map[y][x] == c;
             y += 1;
         }
-        //print!("in {} pocket ", c);
         if !correct { // We can move out of this one
-            //println!("we can move up");
             moves.append(&mut move_up(map, [x, top]));
         } else if top > 2 { // Or we can move in to this one
-            //println!("we can move down");
             moves.append(&mut move_down(map, [x, top - 1], c));
         }
     }
 
-    //println!("moves {:?}", moves);
     moves
 } 
-
-// Keep a done vec, counting from -4 to 4
-fn is_done(map: &mut Vec<Vec<char>>) -> bool {
-    for c in ['A', 'B', 'C', 'D'] {
-        let x = getx(c);
-        let mut y = 2;
-        while map[y][x] != '#' {
-            if map[y][x] != c {
-                return false;
-            }
-            y += 1;
-        }
-    }
-    return true;
-}
 
 fn manhattandist(step: [usize; 4]) -> usize {
     let mut tot = 0;
@@ -119,21 +100,18 @@ fn search(map: &mut Vec<Vec<char>>, lookup: &mut HashMap<String, usize>) -> usiz
     } else {
         1000 * 1000
     };
-    //println!("From state: \n{:?}\n{:?}\n{:?}\n{:?}\n{:?}", map[0], map[1], map[2], map[3], map[4]);
     for step in possible_moves(map) {
         let steps = manhattandist(step);
         let move_cost = steps * 10_usize.pow(((getx(map[step[1]][step[0]]) >> 1) - 1) as u32);
-        //println!("step: {:?}, cost: {}", step, move_cost);
 
         // make move
         map[step[3]][step[2]] = map[step[1]][step[0]];
         map[step[1]][step[0]] = '.';
-        //println!("Move: {:?}", step);
 
         // Fingerprint for this state
         let key = to_key(map);
 
-        // Recurse search
+        // Lookup if possible, otherwise recurse
         let rest_cost = if lookup.contains_key(&key) {
             lookup[&key]
         } else {
@@ -150,7 +128,6 @@ fn search(map: &mut Vec<Vec<char>>, lookup: &mut HashMap<String, usize>) -> usiz
         map[step[3]][step[2]] = '.';
     }
     lookup.insert(oldkey, mincost);
-    //println!("mincost: {}", mincost);
     return mincost;
 }
 
