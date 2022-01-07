@@ -1,5 +1,6 @@
 use std::env;
 use std::fs;
+use std::collections::HashMap;
 use std::cmp;
 
 fn run_a(mut a: usize, mut b: usize) {
@@ -28,7 +29,7 @@ fn run_a(mut a: usize, mut b: usize) {
     }
 }
 
-fn play(astate: usize, ascore: usize, bstate: usize, bscore: usize) -> (u128, u128) {
+fn play(astate: usize, ascore: usize, bstate: usize, bscore: usize, lookup: &mut HashMap<[usize; 4], [u128; 2]>) -> (u128, u128) {
     if bscore >= 21 {
         return (0, 1);
     }
@@ -37,15 +38,24 @@ fn play(astate: usize, ascore: usize, bstate: usize, bscore: usize) -> (u128, u1
     for (v, n) in [(3, 1), (4, 3), (5, 6), (6, 7), (7, 6), (8, 3), (9, 1)] {
         let newstate = (astate + v - 1) % 10 + 1;
         let newscore = ascore + newstate;
-        let wins = play(bstate, bscore, newstate, newscore);
-        awins += n * wins.1;
-        bwins += n * wins.0;
+        let state = [bstate, bscore, newstate, newscore];
+        if lookup.contains_key(&state) {
+            let wins = lookup.get(&state).unwrap();
+            awins += n * wins[1];
+            bwins += n * wins[0];
+        } else {
+            let wins = play(bstate, bscore, newstate, newscore, lookup);
+            awins += n * wins.1;
+            bwins += n * wins.0;
+        }
     }
+    lookup.insert([astate, ascore, bstate, bscore], [awins, bwins]);
     return (awins, bwins);
 }
 
 fn run_b(a: usize, b: usize) {
-    let wins = play(a, 0, b, 0);
+    let mut lookup: HashMap<[usize; 4], [u128; 2]> = HashMap::new();
+    let wins = play(a, 0, b, 0, &mut lookup);
     println!("{}", cmp::max(wins.0, wins.1));
 }
 
