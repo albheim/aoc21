@@ -204,8 +204,7 @@ fn main() {
             }
             fingerprint.sort();
             Scanner { probes, pos: Position { x: 0, y: 0, z: 0}, fingerprint }
-        }
-        ).collect();
+        }).collect();
 
     match version.as_str() {
         "a" => run_a(&mut scanners),
