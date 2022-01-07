@@ -33,8 +33,8 @@ fn dfs(graph: &HashMap<&str, Vec<&str>>, visited: &mut HashMap<&str, bool>, curr
     return n_paths;
 }
 
-fn run(graph: &HashMap<&str, Vec<&str>>, visited: &mut HashMap<&str, bool>, double_visit: bool) {
-    let n_paths = dfs(graph, visited, "start", double_visit);
+fn run(graph: &HashMap<&str, Vec<&str>>, visited: &mut HashMap<&str, bool>, double_visit_used: bool) {
+    let n_paths = dfs(graph, visited, "start", double_visit_used);
     println!("{}", n_paths);
 }
 
@@ -63,5 +63,3 @@ fn main() {
         _ => panic!("Invalid input")
     }
 }
-
-
