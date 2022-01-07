@@ -3,11 +3,17 @@ use std::fs;
 use std::cmp;
 
 /*
+data read from the file:
 steps = [(a0, b0, c0), ..., (a13, b13, c13)]
+
+the digits of the number we look for:
 num = w0 w1 w2 ... w13
 
+The calculation each step of the algorithm:
 z0 = 0
 z(i+1) = if zi % 26 + bi == wi { floor(zi / ai) } else { floor(zi / ai) * 26 + wi + ci }
+
+where if z13==0 it is a valid input.
 
 We have a is either 1 or 26, and there are seven each, always need to go down when possible.
 Each one where a is 1 will multiply by 26 and add something less than 26.
