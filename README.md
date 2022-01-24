@@ -68,6 +68,6 @@ To time the execution run `./time.sh` to both time individual problems execution
        └                                        ┘ 
 ```
 
-From my initial implementations there were a few modifications needed to go sub second. The biggest improvement came from day 19, where my first implementation was not only rather simplistic but also did some slightly stupid things. Removing the bad ideas and adding a fingerprint based on internal distances made the runtime go from around 5 seconds to the current 0.02 seconds.
+From my initial implementations there were a few modifications needed to go sub-second. The biggest improvement came from day 19, where my first implementation was not only rather simplistic but also did some slightly stupid things. Removing the bad ideas and adding a fingerprint based on internal distances made the runtime go from around 5 seconds to the current 0.02 seconds.
 
-There are offcourse many more improvements that could be made, but for now I will call it enough since the goal was achieved.
+There are certainly many more improvements that could be made, but for now I will call it enough since I achieved the goal of one second.
